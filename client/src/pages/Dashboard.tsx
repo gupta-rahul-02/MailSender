@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { getCampaigns, getTemplates } from "../lib/api";
-import { FileText, Send, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { FileText, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function Dashboard() {
   const { data: campaigns = [] } = useQuery({ queryKey: ["campaigns"], queryFn: getCampaigns });
@@ -9,7 +9,6 @@ export default function Dashboard() {
 
   const totalSent = campaigns.reduce((sum: number, c: any) => sum + (c.stats?.sent || 0), 0);
   const totalFailed = campaigns.reduce((sum: number, c: any) => sum + (c.stats?.failed || 0), 0);
-  const scheduled = campaigns.filter((c: any) => c.status === "SCHEDULED").length;
 
   return (
     <div>
