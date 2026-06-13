@@ -35,7 +35,7 @@ export default function CampaignDetail() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatBox label="Total" value={campaign.recipients.length} color="gray" />
         <StatBox label="Sent" value={sentCount} color="green" />
         <StatBox label="Failed" value={failedCount} color="red" />
@@ -49,7 +49,7 @@ export default function CampaignDetail() {
       )}
 
       {/* Recipients table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
         <div className="px-4 py-3 bg-gray-50 border-b">
           <h2 className="font-medium">Recipients</h2>
         </div>
