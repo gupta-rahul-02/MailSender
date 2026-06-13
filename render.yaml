@@ -26,6 +26,8 @@ services:
         value: https://mailsender.onrender.com
       - key: UPLOAD_DIR
         value: /opt/render/project/storage
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
     disk:
       name: mailsender-storage
       mountPath: /opt/render/project/storage
