@@ -1,0 +1,118 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Load .env from root
+// prisma uses .env in the schema directory or project root
+
+model User {
+  id        String       @id @default(cuid())
+  email     String       @unique
+  password  String
+  name      String
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  templates Template[]
+  campaigns Campaign[]
+  smtpConfig SmtpConfig?
+
+  @@map("users")
+}
+
+model Template {
+  id          String       @id @default(cuid())
+  name        String
+  subject     String
+  htmlBody    String       @map("html_body")
+  design      Json?
+  variables   String[]
+  userId      String       @map("user_id")
+  user        User         @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  campaigns   Campaign[]
+  attachments Attachment[]
+
+  @@map("templates")
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  templateId String   @map("template_id")
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  filename   String
+  originalName String @map("original_name")
+  mimeType   String   @map("mime_type")
+  size       Int
+  path       String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("attachments")
+}
+
+model Campaign {
+  id          String          @id @default(cuid())
+  name        String
+  templateId  String          @map("template_id")
+  template    Template        @relation(fields: [templateId], references: [id])
+  userId      String          @map("user_id")
+  user        User            @relation(fields: [userId], references: [id])
+  status      CampaignStatus  @default(DRAFT)
+  scheduledAt DateTime?       @map("scheduled_at")
+  sentAt      DateTime?       @map("sent_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  recipients  Recipient[]
+
+  @@map("campaigns")
+}
+
+model Recipient {
+  id           String          @id @default(cuid())
+  campaignId   String          @map("campaign_id")
+  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email        String
+  name         String?
+  status       RecipientStatus @default(PENDING)
+  errorMessage String?         @map("error_message")
+  sentAt       DateTime?       @map("sent_at")
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  @@map("recipients")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model SmtpConfig {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  host      String   @default("smtp.gmail.com")
+  port      Int      @default(587)
+  secure    Boolean  @default(false)
+  smtpUser  String   @map("smtp_user")
+  smtpPass  String   @map("smtp_pass")
+  fromName  String?  @map("from_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("smtp_config")
+}
